@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Pre‑Cath Stability Training Block</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121c33; --muted:#9fb0d0; --text:#eaf0ff;
+      --accent:#7dd3fc; --accent2:#a7f3d0; --warn:#fbbf24; --danger:#fb7185;
+      --border:rgba(255,255,255,.12); --shadow:0 12px 28px rgba(0,0,0,.35);
+      --radius:18px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text); font-family:var(--sans);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(125,211,252,.22), transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, rgba(167,243,208,.14), transparent 55%),
+        var(--bg);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:980px;margin:0 auto;padding:14px 14px 44px}
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background:rgba(11,18,32,.78);
+      border-bottom:1px solid var(--border);
+      padding-top: env(safe-area-inset-top);
+    }
+    .top{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      padding:12px 0;
+    }
+    h1{margin:0;font-size:18px;line-height:1.2}
+    .sub{margin-top:4px;font-size:12px;color:var(--muted);max-width:72ch}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label.small{font-size:12px;color:var(--muted)}
+    select, button, input{
+      background:rgba(255,255,255,.06); color:var(--text);
+      border:1px solid var(--border); border-radius:12px;
+      padding:10px 12px; font-size:14px; outline:none;
+    }
+    button{cursor:pointer}
+    button.primary{
+      background:linear-gradient(135deg, rgba(125,211,252,.35), rgba(167,243,208,.22));
+      border-color:rgba(125,211,252,.35);
+    }
+    button.ghost{background:rgba(255,255,255,.04)}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+    @media (min-width: 980px){ .grid{grid-template-columns:1.1fr .9fr} }
+
+    .card{
+      background:rgba(18,28,51,.86);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--border);
+      display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;
+    }
+    .hd h2{margin:0;font-size:15px}
+    .pill{
+      font-size:12px;color:var(--muted);
+      border:1px solid var(--border);
+      padding:5px 9px;border-radius:999px;white-space:nowrap
+    }
+    .bd{padding:14px}
+    .small{font-size:12px;color:var(--muted)}
+    .warnbox{
+      border:1px solid rgba(251,191,36,.35);
+      background:rgba(251,191,36,.08);
+      border-radius:16px; padding:12px;
+    }
+    .dangerbox{
+      border:1px solid rgba(251,113,133,.40);
+      background:rgba(251,113,133,.08);
+      border-radius:16px; padding:12px;
+      margin-top:12px;
+    }
+    details{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(255,255,255,.03);
+      margin:10px 0;
+    }
+    summary{cursor:pointer;font-weight:700}
+    .hr-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+    .hr-table td,.hr-table th{border-bottom:1px solid var(--border);padding:8px 6px;text-align:left}
+    .hr-table th{color:var(--muted);font-weight:600}
+
+    .day{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(255,255,255,.03);
+      margin:10px 0;
+    }
+    .row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+    .day h3{margin:0;font-size:14px}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .tag{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
+    .tag.z2{border-color:rgba(125,211,252,.35);color:#c7eeff}
+    .tag.str{border-color:rgba(167,243,208,.35);color:#d1fae5}
+    .tag.hit{border-color:rgba(251,191,36,.35);color:#fde68a}
+    .tag.mob{border-color:rgba(196,181,253,.35);color:#e9d5ff}
+    .checklist{margin-top:10px;display:grid;gap:8px}
+    .chk{display:flex;gap:10px;align-items:flex-start;line-height:1.25}
+    .chk input{margin-top:2px;transform:scale(1.15)}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .kpi span{
+      font-family:var(--mono);
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      padding:6px 10px;border-radius:12px;font-size:12px;color:var(--muted)
+    }
+
+    /* Timer */
+    .two{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){ .two{grid-template-columns:1.2fr .8fr} }
+    .timerBig{font-family:var(--mono);font-size:30px;font-weight:800}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Pre‑Cath Stability Training Block</h1>
+        <div class="sub">
+          Conservative, fitness‑first plan from <b>Feb 23 → Mar 17, 2026</b>. Focus: aerobic efficiency + strength + weekly boxing (FightCamp) while keeping intensity controlled.
+          Hard cap: keep boxing <b>155 bpm</b> (aim mostly 135–150).
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="small" for="weekSel">Week of</label>
+        <select id="weekSel" aria-label="Select week"></select>
+        <button class="primary" id="btnResetWeek">Reset Week</button>
+        <button class="ghost" id="btnPrint">Print</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="hd">
+      <h2>Workout Timer</h2>
+      <div class="pill" id="timerModePill">Intervals</div>
+    </div>
+    <div class="bd">
+      <div class="two">
+        <div>
+          <div class="small">Pick a preset (or customize). Works on iPhone. Video links open YouTube pages (no embedding).</div>
+          <div class="controls" style="margin-top:10px">
+            <label class="small" for="timerPreset">Preset</label>
+            <select id="timerPreset"></select>
+            <button class="primary" id="timerStart">Start</button>
+            <button class="ghost" id="timerPause">Pause</button>
+            <button class="ghost" id="timerReset">Reset</button>
+          </div>
+          <div class="controls" style="margin-top:10px">
+            <label class="small" for="workSec">Work (sec)</label>
+            <input id="workSec" type="text" inputmode="numeric" value="180" style="width:110px" />
+            <label class="small" for="restSec">Rest (sec)</label>
+            <input id="restSec" type="text" inputmode="numeric" value="60" style="width:110px" />
+            <label class="small" for="rounds">Rounds</label>
+            <input id="rounds" type="text" inputmode="numeric" value="6" style="width:90px" />
+          </div>
+          <div class="small" style="margin-top:10px">
+            Zone 2 tip: use “Countdown 45:00 / 60:00”. Strength days: ignore timer or use countdown and rest as needed.
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div>
+              <div class="small">Current</div>
+              <div id="timerLabel" style="font-weight:800">Ready</div>
+            </div>
+            <div style="text-align:right">
+              <div class="small">Remaining</div>
+              <div class="timerBig" id="timerDisplay">00:00</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.03)">
+            <div class="small">Round</div>
+            <div id="timerRound" style="font-family:var(--mono);font-weight:700">0 / 0</div>
+            <div class="small" style="margin-top:8px">Next</div>
+            <div id="timerNext" style="font-size:13px">—</div>
+          </div>
+          <div class="small" style="margin-top:10px">
+            Audio: simple beeps if your device allows. If iOS blocks audio until interaction, tap Start again.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card" id="planCard">
+      <div class="hd">
+        <h2 id="planTitle">Week</h2>
+        <div class="pill" id="phasePill">Phase</div>
+      </div>
+      <div class="bd">
+        <div class="kpi">
+          <span id="kpiBox">Boxing: —</span>
+          <span id="kpiZ2">Zone 2: —</span>
+          <span id="kpiStr">Strength: —</span>
+        </div>
+        <div class="small" style="margin-top:10px" id="phaseText"></div>
+        <div id="planBody"></div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="hd">
+        <h2>Targets & Notes</h2>
+        <div class="pill">Fitness-first</div>
+      </div>
+      <div class="bd">
+</div>
+
+        <details open>
+          <summary>Heart-rate & effort guide</summary>
+          <table class="hr-table">
+            <thead><tr><th>Target</th><th>Guideline</th><th>Feel</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Zone 2</strong></td><td>~115–130 bpm</td><td>Full sentences; calm breathing (RPE 4–5/10)</td></tr>
+              <tr><td><strong>Controlled boxing</strong></td><td>Cap ~150–155</td><td>Strong but recoverable (RPE 6–7/10)</td></tr>
+              <tr><td><strong>Hard boxing</strong></td><td>Mostly ≤165; avoid sustained >170</td><td>Hard rounds, real recoveries (RPE ~8/10)</td></tr>
+            </tbody>
+          </table>
+          <div class="small">Use HR + breathing + RPE together. Zone 2 should feel steady and sustainable.</div>
+        </details>
+
+        <details>
+          <summary>Video link policy</summary>
+          <div class="small">
+            Exercise names open external pages (YouTube/Concept2). No embedding.
+            <ul>
+              <li><strong>TRX</strong>: @TRXtraining only</li>
+              <li><strong>Non-TRX</strong>: NASM YouTube (single source)</li>
+              <li><strong>Rowing</strong>: Concept2 technique page</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Houston heat rule</summary>
+          <div class="small">
+            Heat + dehydration spikes HR and sympathetic tone. In hot months prefer indoor bike/walking pad. Hydrate before boxing.
+          </div>
+        </details>
+</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+  const STORE_KEY = "longevityPlan_preCath_2026_02_23";
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function loadStore(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
+    catch { return {}; }
+  }
+  function saveStore(obj){ localStorage.setItem(STORE_KEY, JSON.stringify(obj)); }
+  function wKey(w){ return "w" + w; }
+
+  const VIDEO = {
+    "TRX Squat": "https://www.youtube.com/watch?v=DTXphTGYd0g",
+    "TRX Row": "https://www.youtube.com/watch?v=7d8SbPUdHR0",
+    "TRX Chest Press": "https://www.youtube.com/watch?v=i_45-JMoXg4",
+    "TRX Hip Hinge": "https://www.youtube.com/watch?v=zVtWUx2IY40",
+    "TRX Y Fly": "https://www.youtube.com/watch?v=32SsJD-9UeQ",
+
+    "Incline Push-Up": "https://www.youtube.com/watch?v=0JUrOH--Kdk",
+    "Dead Bug": "https://www.youtube.com/watch?v=bxn9FBrt4-A",
+    "Glute Bridge": "https://www.youtube.com/watch?v=SKOMwg1JLrU",
+    "Reverse Lunge": "https://www.youtube.com/watch?v=lKhZvT_NkOs",
+    "Pallof Press": "https://www.youtube.com/watch?v=f3R99GoYvCs",
+    "Standing Tubing Row": "https://www.youtube.com/watch?v=qykwviNOIyc",
+    "Dumbbell Rack Carry": "https://www.youtube.com/watch?v=IA2tycCS8DI",
+    "Single-Leg Balance Reach": "https://www.youtube.com/watch?v=Mo4P9Y_AQt8",
+
+    "Concept2 Technique Videos": "https://www.concept2.com/indoor-rowers/training/technique-videos"
+  };
+
+  function linkify(line){
+    const keys = Object.keys(VIDEO);
+    const hit = keys.find(k => line.startsWith(k));
+    if(!hit) return escapeHtml(line);
+    const url = VIDEO[hit];
+    return `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(line)}</a>`;
+  }
+
+  const phases = [
+    {name:"Weeks 1–4 • Foundation", pill:"Foundation"},
+    {name:"Weeks 5–8 • Base Build", pill:"Base Build"},
+    {name:"Weeks 9–12 • Consolidate", pill:"Consolidate"}
+  ];
+
+  function z2(mins, opts={}){
+    const cap = opts.cap ?? null;
+    const noteExtra = opts.note ? ` ${opts.note}` : "";
+    const capTxt = cap ? `Cap ${cap} bpm` : "Stay conversational";
+    return {
+      type:"Zone 2", tag:"z2",
+      title:`Zone 2 Aerobic (${mins} min)`,
+      meta:[capTxt, "RPE 4–5/10", "Full-sentence breathing"],
+      checklist:[
+        "Minutes 0–10: keep HR ≤110 (easy start)",
+        `Minutes 10–${Math.max(10, mins-15)}: hold 110–115`,
+        `Final ${Math.min(15, mins)} min: allow 115–120 (cap ~122; ease if higher)`,
+        "Hydrate (heat = more drift)"
+      ],
+      notes:`Keep it smooth; do not \"finish strong\". ${noteExtra}`.trim()
+    };
+  }
+
+  function strengthA(rounds, opts={}){
+    const carry = !!opts.carry;
+    const carryLine = carry ? "Farmer carry: 30 sec/side after each round (light/moderate)" : "Optional: farmer carry 30 sec/side at the end";
+    return {
+      type:"Strength", tag:"str",
+      title:`Strength A • ${rounds} rounds`,
+      meta:["2–3 reps in reserve", "Steady breathing", "No grinders"],
+      checklist:[
+        "Warm up 5 min (easy squats, hinges, shoulder circles)",
+        `TRX Squat — 10–12 reps × ${rounds}`,
+        `TRX Row — 8–10 reps × ${rounds}`,
+        `Incline Push-up — 6–10 reps × ${rounds}`,
+        `Dead Bug — 6/side × ${rounds}`,
+        `Glute Bridge — 12 reps × ${rounds}`,
+        carryLine
+      ],
+      notes:"Move with control. Rest 60–90 sec as needed; finish feeling strong, not smoked."
+    };
+  }
+
+  function strengthB(rounds, opts={}){
+    const yfly = !!opts.yfly;
+    const light = !!opts.light;
+    const roundTxt = light ? `${rounds} rounds (lighter)` : `${rounds} rounds`;
+    const yFlyLine = yfly ? `TRX Y Fly — 6–8 reps × ${rounds} (light angle)` : null;
+
+    const list = [
+      "Warm up 5 min (hip mobility + band pull-aparts)",
+      `TRX Row — 8–10 reps × ${rounds}`,
+      `TRX Chest Press — 8–10 reps × ${rounds}`,
+      `Reverse Lunge — 6–8/leg × ${rounds}`,
+      `Pallof Press — 8/side × ${rounds}`,
+      `TRX Hip Hinge or DB RDL — 8–10 reps × ${rounds}`
+    ];
+    if(yFlyLine) list.push(yFlyLine);
+    list.push("Mobility 10–15 min (hips, thoracic rotation, calves)");
+
+    return {
+      type:"Strength", tag:"str",
+      title:`Strength B + Mobility • ${roundTxt}`,
+      meta:["2–3 reps in reserve", "Steady breathing", "No finishers"],
+      checklist:list,
+      notes: light ? "Consolidation: keep it easy and leave plenty in the tank." : "Controlled strength + mobility. Avoid breath-holding."
+    };
+  }
+
+  function boxing(kind){
+    const hard = kind==="Hard";
+    return {
+      type:"Boxing", tag:"hit",
+      title:`FightCamp Boxing (${kind})`,
+      meta:[hard ? "Mostly ≤165; avoid sustained >170" : "Cap ~150–155", hard ? "RPE ~8/10" : "RPE 6–7/10", "No extra finishers"],
+      checklist:[
+        "Hydrate before",
+        hard ? "Pick a challenging class; recover between rounds" : "Pick technique/moderate class; keep breathing controlled",
+        hard ? "Take longer recoveries if your HR stays elevated" : "If HR hits ~155, ease until it drops",
+        "Cool down + 5–10 min easy walk or gentle stretch"
+      ],
+      notes: hard ? "Hardest day of week. Hard, not reckless." : "Practice day: smooth rhythm, control."
+    };
+  }
+
+  
+  function boxingFightCamp(opts={}){
+    const rounds = opts.rounds ?? 6;
+    const cap = opts.cap ?? 155;
+    const extra = opts.note ? ` ${opts.note}` : "";
+    return {
+      type:"Boxing", tag:"hit",
+      title:`FightCamp Boxing (choose a workout) • ${rounds} rounds`,
+      meta:[`Aim 135–150`, `Hard cap ${cap} bpm`, "RPE ≤7–8"],
+      checklist:[
+        "Pick one FightCamp workout (no finishers)",
+        `Work: ${rounds} rounds of 3:00 on / 1:00 off (or match the workout structure)`,
+        "If HR climbs toward cap, ease for 20–40 sec and resume",
+        "Cool down 3–5 min easy + light stretching"
+      ],
+      notes:`Controlled intensity; finish sweaty but not wrung out.${extra}`.trim()
+    };
+  }
+
+  function easyWalkOpt(minsLow, minsHigh){
+    return {
+      type:"Optional", tag:"opt",
+      title:`Optional Easy Walk (${minsLow}–${minsHigh} min)`,
+      meta:["HR 100–115", "Easy pace", "Recovery-focused"],
+      checklist:[
+        "Walk easy; nasal breathing if comfortable",
+        "Stop early if you feel even mildly fatigued",
+        "Hydrate"
+      ],
+      notes:"Optional—only if you feel good."
+    };
+  }
+
+  function restDay(label="Rest"){
+    return {
+      type:"Rest", tag:"rest",
+      title:label,
+      meta:["Sleep priority", "Light movement only"],
+      checklist:[
+        "Light movement as desired (easy walk, mobility)",
+        "Hydrate",
+        "Early bedtime if possible"
+      ],
+      notes:"Recovery builds fitness."
+    };
+  }
+
+  function procedureDay(){
+    return {
+      type:"Procedure", tag:"rest",
+      title:"Cardiac cath (scheduled)",
+      meta:["No workout", "Follow your care team's instructions"],
+      checklist:[
+        "Rest day",
+        "Follow pre‑procedure instructions",
+        "No strenuous activity"
+      ],
+      notes:"Mar 17, 2026."
+    };
+  }
+
+
+  function rowTech(){
+    return {
+      type:"Technique", tag:"mob",
+      title:"Optional Row Technique (5–12 min easy)",
+      meta:["Easy pace", "Stop before fatigue"],
+      checklist:[
+        "Concept2 Technique Videos",
+        "Row 5 min easy (stop early if form breaks)",
+        "Optional: 2 × 2 min easy with 1 min rest"
+      ],
+      notes:"Optional add-on. Not a hard session."
+    };
+  }
+
+  function optionalWalk(){
+    return {
+      type:"Optional", tag:"mob",
+      title:"Optional easy walk (dog walk) • 20–45 min",
+      meta:["Easy pace", "Conversational"],
+      checklist:["Keep it easy", "Hydrate", "Skip if tired"],
+      notes:"Optional. Don’t force it."
+    };
+  }
+
+  function rest(){
+    return {
+      type:"Rest", tag:"mob",
+      title:"Rest day",
+      meta:["No structured training"],
+      checklist:["Light movement if you want (5–15 min)", "Prioritize sleep"],
+      notes:"Rest is training. Adaptation lands here."
+    };
+  }
+
+  function fmtDate(d){
+    const opts = {month:"short", day:"numeric"};
+    return d.toLocaleDateString(undefined, opts);
+  }
+  const BASE_DATE = new Date("2026-02-23T00:00:00"); // Monday
+  const PROCEDURE_DATE = new Date("2026-03-17T00:00:00");
+
+  function weekStartDate(week){
+    const d = new Date(BASE_DATE);
+    d.setDate(d.getDate() + (week-1)*7);
+    return d;
+  }
+
+  function buildWeek(week){
+    const ws = weekStartDate(week);
+    const we = new Date(ws); we.setDate(we.getDate()+6);
+
+    const phase = {pill:"Stability", name:"Conservative conditioning + strength; controlled intensity"};
+    const days = [];
+    const names = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+    function addDay(offset, obj){
+      const d = new Date(ws);
+      d.setDate(d.getDate()+offset);
+      obj.date = fmtDate(d);
+      days.push({name:names[offset], ...obj});
+    }
+
+    if(week===1){
+      addDay(0, z2(45, {cap:122}));
+      addDay(1, strengthA(3, {carry:false}));
+      addDay(2, boxingFightCamp({rounds:6, cap:155}));
+      addDay(3, z2(45, {cap:122}));
+      addDay(4, strengthB(3, {yfly:false, light:false}));
+      addDay(5, easyWalkOpt(30,40));
+      addDay(6, restDay());
+    } else if(week===2){
+      addDay(0, z2(50, {cap:122}));
+      addDay(1, strengthA(3, {carry:true}));
+      addDay(2, boxingFightCamp({rounds:7, cap:155, note:"If you feel even slightly off, do 6 rounds."}));
+      addDay(3, z2(50, {cap:122}));
+      addDay(4, strengthB(3, {yfly:true, light:false}));
+      addDay(5, easyWalkOpt(30,40));
+      addDay(6, restDay());
+    } else if(week===3){
+      addDay(0, z2(50, {cap:122}));
+      addDay(1, strengthA(3, {carry:true}));
+      addDay(2, boxingFightCamp({rounds:6, cap:155, note:"Consolidation week—keep it smooth, not heroic."}));
+      addDay(3, z2(45, {cap:122}));
+      addDay(4, strengthB(2, {yfly:true, light:true}));
+      addDay(5, easyWalkOpt(30,30));
+      addDay(6, restDay());
+    } else { // week 4: procedure week (Mar 16–22)
+      addDay(0, z2(40, {cap:120, note:"Procedure week—keep it easy and finish fresh."}));
+      addDay(1, procedureDay());
+      addDay(2, restDay("Recovery (not prescribed here)"));
+      addDay(3, restDay("Recovery (not prescribed here)"));
+      addDay(4, restDay("Recovery (not prescribed here)"));
+      addDay(5, restDay("Recovery (not prescribed here)"));
+      addDay(6, restDay("Recovery (not prescribed here)"));
+    }
+
+    const counts = {boxing:0, z2:0, str:0};
+    for(const d of days){
+      if(d.type==="Boxing") counts.boxing++;
+      if(d.type==="Zone 2") counts.z2++;
+      if(d.type==="Strength") counts.str++;
+    }
+
+    return {week, weekStart: fmtDate(ws), weekEnd: fmtDate(we), phase, days, counts};
+  }
+
+  function renderWeek(week){
+    const w = buildWeek(week);
+    planTitle.textContent = `Week of ${w.weekStart}–${w.weekEnd}`;
+    phasePill.textContent = w.phase.pill;
+    phaseText.textContent = w.phase.name;
+
+    kpiBox.textContent = `Boxing: ${w.counts.boxing}`;
+    kpiZ2.textContent = `Zone 2: ${w.counts.z2}`;
+    kpiStr.textContent = `Strength: ${w.counts.str}`;
+
+    const store = loadStore();
+    const checks = (store[wKey(week)] || {});
+
+    let out = "";
+    for(const day of w.days){
+      const idBase = `${week}-${day.name}`;
+      out += `
+        <div class="day">
+          <div class="row">
+            <div>
+              <h3>${escapeHtml(day.name)} (${escapeHtml(day.date)}): ${escapeHtml(day.title)}</h3>
+              <div class="small" style="margin-top:4px">${escapeHtml(day.notes)}</div>
+            </div>
+            <div class="meta">
+              <span class="tag ${day.tag}">${escapeHtml(day.type)}</span>
+              ${day.meta.map(m=>`<span class="tag">${escapeHtml(m)}</span>`).join("")}
+            </div>
+          </div>
+          <div class="checklist">
+            ${day.checklist.map((line, i)=>{
+              const cid = `${idBase}-${i}`;
+              const checked = checks[cid] ? "checked" : "";
+              return `
+                <label class="chk">
+                  <input type="checkbox" data-week="${week}" data-cid="${escapeHtml(cid)}" ${checked} />
+                  <span>${linkify(line)}</span>
+                </label>`;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+      if(day.name==="Thursday" && week<=6){
+        const r = rowTech();
+        const idBaseR = `${week}-RowTech`;
+        out += `
+          <div class="day">
+            <div class="row">
+              <div>
+                <h3>Optional Add-On: ${escapeHtml(r.title)}</h3>
+                <div class="small" style="margin-top:4px">${escapeHtml(r.notes)}</div>
+              </div>
+              <div class="meta">
+                <span class="tag ${r.tag}">${escapeHtml(r.type)}</span>
+                ${r.meta.map(m=>`<span class="tag">${escapeHtml(m)}</span>`).join("")}
+              </div>
+            </div>
+            <div class="checklist">
+              ${r.checklist.map((line, i)=>{
+                const cid = `${idBaseR}-${i}`;
+                const checked = checks[cid] ? "checked" : "";
+                return `
+                  <label class="chk">
+                    <input type="checkbox" data-week="${week}" data-cid="${escapeHtml(cid)}" ${checked} />
+                    <span>${linkify(line)}</span>
+                  </label>`;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    out += `
+      <details>
+        <summary>Progression rules</summary>
+        <div class="small">
+          <ul>
+            <li><strong>Zone 2:</strong> increase time before intensity. Stay conversational.</li>
+            <li><strong>Strength:</strong> change TRX angle/leverage before adding reps. Exhale on exertion.</li>
+            <li><strong>Boxing:</strong> 1 hard day/week. No extra finishers. Recover between rounds.</li>
+            <li><strong>Rowing:</strong> technique only until you can row 10 min easy with solid form.</li>
+          </ul>
+        </div>
+      </details>
+    `;
+
+    planBody.innerHTML = out;
+
+    planBody.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", (e)=>{
+        const w = e.target.getAttribute("data-week");
+        const cid = e.target.getAttribute("data-cid");
+        const store = loadStore();
+        store[wKey(w)] = store[wKey(w)] || {};
+        store[wKey(w)][cid] = e.target.checked;
+        store.selectedWeek = Number(weekSel.value);
+        saveStore(store);
+      });
+    });
+  }
+
+  for(let w=1; w<=4; w++){
+    const opt = document.createElement("option");
+    opt.value = String(w);
+    const ws = weekStartDate(w);
+    const we = new Date(ws); we.setDate(we.getDate()+6);
+    opt.textContent = `${fmtDate(ws)}–${fmtDate(we)}`;
+    weekSel.appendChild(opt);
+  }
+
+  function getSelectedWeek(){
+    const store = loadStore();
+    const w = store.selectedWeek ? Number(store.selectedWeek) : 1;
+    return Math.min(12, Math.max(1, w));
+  }
+
+  weekSel.addEventListener("change", ()=>{
+    const w = Number(weekSel.value);
+    const store = loadStore();
+    store.selectedWeek = w;
+    saveStore(store);
+    renderWeek(w);
+  });
+
+  document.getElementById("btnResetWeek").addEventListener("click", ()=>{
+    const w = Number(weekSel.value);
+    const store = loadStore();
+    delete store[wKey(w)];
+    saveStore(store);
+    renderWeek(w);
+  });
+
+  document.getElementById("btnPrint").addEventListener("click", ()=>window.print());
+
+  function fmtMMSS(total){
+    const m = Math.floor(total/60);
+    const s = Math.floor(total%60);
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  }
+  function beep(freq=880, ms=110){
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = freq;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.value = 0.05;
+      o.start();
+      setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+    }catch{}
+  }
+
+  const timerPreset = document.getElementById("timerPreset");
+  const timerStart = document.getElementById("timerStart");
+  const timerPause = document.getElementById("timerPause");
+  const timerReset = document.getElementById("timerReset");
+  const timerDisplay = document.getElementById("timerDisplay");
+  const timerLabel = document.getElementById("timerLabel");
+  const timerRound = document.getElementById("timerRound");
+  const timerNext = document.getElementById("timerNext");
+  const timerModePill = document.getElementById("timerModePill");
+  const workSecEl = document.getElementById("workSec");
+  const restSecEl = document.getElementById("restSec");
+  const roundsEl = document.getElementById("rounds");
+
+  const PRESETS = [
+    {name:"Intervals 3:00 / 1:00 × 6 (boxing)", mode:"intervals", work:180, rest:60, rounds:6},
+    {name:"Intervals 2:00 / 1:00 × 8", mode:"intervals", work:120, rest:60, rounds:8},
+    {name:"EMOM-light (60s × 12)", mode:"emom", work:60, rest:0, rounds:12},
+    {name:"Countdown 45:00 (Zone 2)", mode:"countdown", work:2700, rest:0, rounds:1},
+    {name:"Countdown 60:00 (Zone 2)", mode:"countdown", work:3600, rest:0, rounds:1}
+  ];
+
+  PRESETS.forEach((p,i)=>{
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = p.name;
+    timerPreset.appendChild(opt);
+  });
+
+  function applyPreset(i){
+    const p = PRESETS[i];
+    if(!p) return;
+    workSecEl.value = String(p.work);
+    restSecEl.value = String(p.rest);
+    roundsEl.value = String(p.rounds);
+    timerModePill.textContent = p.mode==="countdown" ? "Countdown" : (p.mode==="emom" ? "EMOM" : "Intervals");
+    timerDisplay.textContent = fmtMMSS(p.work);
+    timerLabel.textContent = "Ready";
+    timerRound.textContent = `0 / ${p.rounds}`;
+    timerNext.textContent = p.mode==="countdown" ? "—" : `Work ${fmtMMSS(p.work)} → Rest ${fmtMMSS(p.rest)}`;
+  }
+
+  let intervalId = null;
+  let state = {mode:"intervals", phase:"work", remaining:0, round:0, totalRounds:0, work:0, rest:0};
+
+  function readTimerInputs(){
+    const work = Math.max(1, Number(workSecEl.value || 0));
+    const rest = Math.max(0, Number(restSecEl.value || 0));
+    const rounds = Math.max(1, Number(roundsEl.value || 0));
+    const mode = (rounds===1 && rest===0) ? "countdown" : (rest===0 ? "emom" : "intervals");
+    return {work, rest, rounds, mode};
+  }
+
+  function renderTimer(){
+    timerDisplay.textContent = fmtMMSS(state.remaining);
+    timerRound.textContent = `${Math.min(state.round, state.totalRounds)} / ${state.totalRounds}`;
+
+    if(state.mode==="countdown"){
+      timerLabel.textContent = "Countdown";
+      timerNext.textContent = "—";
+      return;
+    }
+    const next = state.phase==="work" ? `Rest ${fmtMMSS(state.rest)}` : `Work ${fmtMMSS(state.work)}`;
+    timerLabel.textContent = state.phase==="work" ? "WORK" : (state.mode==="emom" ? "NEXT MINUTE" : "REST");
+    timerNext.textContent = next;
+  }
+
+  function stopTimer(silent){
+    if(intervalId){ clearInterval(intervalId); intervalId = null; }
+    if(!silent) beep(520, 160);
+  }
+
+  function tick(){
+    if(state.remaining <= 0){
+      beep(880, 130);
+
+      if(state.mode==="countdown"){
+        stopTimer(false);
+        timerLabel.textContent = "Done";
+        return;
+      }
+
+      if(state.mode==="emom"){
+        state.round += 1;
+        if(state.round > state.totalRounds){
+          stopTimer(false);
+          timerLabel.textContent = "Done";
+          beep(660, 220);
+          return;
+        }
+        state.phase = "work";
+        state.remaining = state.work;
+        renderTimer();
+        return;
+      }
+
+      if(state.phase==="work"){
+        state.phase = "rest";
+        state.remaining = state.rest;
+      }else{
+        state.phase = "work";
+        state.remaining = state.work;
+        state.round += 1;
+      }
+
+      if(state.round > state.totalRounds){
+        stopTimer(false);
+        timerLabel.textContent = "Done";
+        beep(660, 220);
+        return;
+      }
+      renderTimer();
+      return;
+    }
+
+    state.remaining -= 1;
+    if(state.remaining === 3) beep(660, 90);
+    if(state.remaining === 2) beep(660, 90);
+    if(state.remaining === 1) beep(660, 90);
+    renderTimer();
+  }
+
+  function startTimer(){
+    stopTimer(true);
+    const {work, rest, rounds, mode} = readTimerInputs();
+    state.work = work; state.rest = rest; state.totalRounds = rounds; state.mode = mode;
+    state.phase = "work";
+    state.round = 1;
+    state.remaining = work;
+
+    timerModePill.textContent = mode==="countdown" ? "Countdown" : (mode==="emom" ? "EMOM" : "Intervals");
+    renderTimer();
+    beep(880, 130);
+    intervalId = setInterval(tick, 1000);
+  }
+
+  function pauseTimer(){
+    if(intervalId){
+      clearInterval(intervalId);
+      intervalId = null;
+      timerLabel.textContent = "Paused";
+    }
+  }
+
+  function resetTimer(){
+    stopTimer(true);
+    const {work, rest, rounds, mode} = readTimerInputs();
+    timerModePill.textContent = mode==="countdown" ? "Countdown" : (mode==="emom" ? "EMOM" : "Intervals");
+    timerLabel.textContent = "Ready";
+    timerDisplay.textContent = fmtMMSS(work);
+    timerRound.textContent = `0 / ${rounds}`;
+    timerNext.textContent = mode==="countdown" ? "—" : `Work ${fmtMMSS(work)} → Rest ${fmtMMSS(rest)}`;
+  }
+
+  timerPreset.addEventListener("change", ()=>{
+    applyPreset(Number(timerPreset.value));
+    resetTimer();
+  });
+  timerStart.addEventListener("click", startTimer);
+  timerPause.addEventListener("click", pauseTimer);
+  timerReset.addEventListener("click", resetTimer);
+
+  timerPreset.value = "0";
+  applyPreset(0);
+  resetTimer();
+
+  const initialWeek = getSelectedWeek();
+  weekSel.value = String(initialWeek);
+  renderWeek(initialWeek);
+</script>
+</body>
+</html>
